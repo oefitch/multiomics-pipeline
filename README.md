@@ -1,6 +1,8 @@
 # multiomics-pipeline
 Pipeline for processing RNA-seq and ATAC-seq data from fastq to bigwig
 
+This file in IN PROGRESS
+
 This pipeline is based on the ATAC-seq pipeline developed by John M. Gaspar and Aaron Kitzmiller https://github.com/harvardinformatics/ATAC-seq
 
 ## Overview
