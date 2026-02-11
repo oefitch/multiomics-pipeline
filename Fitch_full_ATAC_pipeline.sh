@@ -36,10 +36,9 @@ module load picard/2.18.1-Java-1.8.0_152
 module load GCC/8.3.0  OpenMPI/3.1.4
 module load MACS2/2.2.5-Python-3.7.4
 
-cd /mnt/home/fitcholi/gar_tails_23/ATAC_samples_24/QC #path to location of input files 
+ #path to location of input files 
 
 sample_names="CF2 CF5 CF6 CF8 CF9 CR10 CR17 NE5 NE6 NE8 NE9" #replace with your own sample names 
-sample_names="CF1_1 CF2 CF3 CF4 CF5 CF6 CF7 CF8 CF9 CR1 CR2 CR3 CR4 CR5 CR6 CR7 CR8 CR9 NE1_1 NE2 NE3 NE4 NE5 NE6 NE7 NE8 NE9"
 
 #### Trim Reads ####
 #NOTE: with new package (faster than trimmomatic) in parallel (this is after re-naming read files from novogene)
@@ -72,10 +71,10 @@ parallel 'samtools index {}_sorted_mitout_dupout_uniq.bam' ::: $sample_names
 #NOTE: These next two can be run at the same time
 
 module load Conda/3
-cd /mnt/home/fitcholi #navigate to the environment where conda is installed 
+cd path #navigate to the environment where conda is installed 
 conda activate atac #activate the conda environment where you installed bamcoverage 
 #### Convert bam to bigwig ####
-cd /mnt/home/fitcholi/gar_tails_23/ATAC_samples_24/QC #navigate to the directory where you want to work
+cd path #navigate to the directory where you want to work
 parallel 'bamCoverage -b {}_sorted_mitout_dupout_uniq.bam -of bigwig --normalizeUsing BPM --ignoreForNormalization MT --effectiveGenomeSize 345577542 -o {}_23.bw' ::: $sample_names
 conda deactivate
 
