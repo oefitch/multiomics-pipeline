@@ -1,8 +1,6 @@
 # multiomics-pipeline
 Pipeline for processing RNA-seq and ATAC-seq data from fastq to bigwig
 
-This file in **IN PROGRESS**
-
 This pipeline is based on the ATAC-seq pipeline developed by John M. Gaspar and Aaron Kitzmiller https://github.com/harvardinformatics/ATAC-seq
 
 ## Overview
@@ -82,14 +80,81 @@ Now you have your mapped, trimmed, and sorted bam files! Congrats! You could sto
 
 ## Step 4: Remove Mitochondrial Reads
 
+For ATAC-seq, it's important to remove mitochondrial reads during processing because, much like how rRNA reads can overwhelm your RNA-seq analysis, mitochondrial reads can make up a signifcant number of your ATAC reads, so it is best to remove them.  
+
+For RNA-seq, you may not want to remove mitochondrial reads because you're interested in mitochondrial genes, you can also remove mitochondrail genes or rRNA later in your RNA analysis process. There is conflicting opinions on whether to remove mitochondrial reads from your `.bam` files in RNA-seq, but I think that treating your RNA and ATAC reads with the same processing is important for multiomics work, so I choose to remove mitochondrial reads at this step for RNA-seq, but this is up to your discretion. 
+
+You can use the [python script](https://github.com/harvardinformatics/ATAC-seq/blob/master/atacseq/removeChrom.py) convieniently posted to Github by John M. Gaspar and Aaron Kitzmiller to remove mitochondrial reads. 
+
+```
+#For ATAC-seq
+samtools view -h TRIMMED_MAPPED.bam  | python $PATH/removeChrom.py - - $NAME_OF_MITO_GENOME  |  samtools view -b | samtools sort - > TRIMMED_MAPPED_MITOUT.bam
+```
+> **NOTE:** Make sure you know the name of the mitochondrial genome in your species and update `$NAME_OF_MITO_GENOME`
+
+You have now removed mitochondrial reads for your ATAC samples and you're ready to continue to the next processing steps. 
+
 ## Step 5: Remove PCR Duplicates
 
-## Step 6: Remove non-unique reads
+Next, we will remove PCR duplicates. These are identical reads that are a result of the sequencing process and should be removed so your samples are as biologically accurate as possible. 
+
+To remove PCR duplicates, we can use `picard` tools, make sure you have the [lastest version](https://broadinstitute.github.io/picard/) downloaded. 
+
+```
+#Remove PCR duplicates
+java -jar $PATH/picard.jar MarkDuplicates I=TRIMMED_MAPPED_MITOUT.bam O=TRIMMED_MAPPED_MITOUT_DUPOUT.bam M=duplicates.txt REMOVE_DUPLICATES=true
+```
+Great! Now we are ready to move on to the next processing step: removing non-unique reads. 
+
+## Step 6: Remove non-uniquely mapped reads
+
+This step is important after `bowtie2` processing, using another mapping software you may not have this issue. But `bowtie` may map a read to mutliple places in the genome and give it a low quality score. You can remove those with a low quality score using `samtools`. 
+
+```
+#Remove loq-qulaity mapped reads and sort again
+# -n sorts reads alpha-numerically
+samtools view -b  -q 10  TRIMMED_MAPPED_MITOUT_DUPOUT_UNIQ.bam | samtools sort -n -o  FINAL.bam
+```
+
+Alright, you've made it to the end! You now have your final `.bam` files. Congratulations! 
 
 ## Step 7: Index final `.bam` files
 
+Before we move on to converting the `.bam` files to other file types for visualization, you'll want to index the `.bam` files. 
+
+This is a simple `samtools` command 
+
+```
+#This will generate an index for your .bam files
+samtools index FINAL.bam
+```
+Great, now you have your index! These next two steps can be performed in unison, they are not dependent on each other. 
+
 ## Step 8: Convert `.bam` to `.bigwig`
 
-## Step 9: Call Peaks with `MACS2`
+Now that we have our cleaned `.bam` files, we want to move on to visualizing our samples in IGV. The best way to visualize these samples is to make "bigwig" `.bw` files. That are mean for visualization so you don't have to haul around a giant `.bam` file to your genome viewers. 
 
+We can use the `bamCoverage` tool to generate `.bw` files. Download the [latest version](https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html) of `bamCoverage` from `deepTools`
 
+```
+SIZE_in_BP= #size of your genome in base-pairs 
+bamCoverage -b FINAL.bam -of bigwig --normalizeUsing BPM --ignoreForNormalization MT --effectiveGenomeSize $SIZE_in_BP -o FINAL.bw
+```
+
+## Step 9: Call Peaks with `MACS2` 
+
+In the previous step, we made `.bw` files to visualize our ATAC-seq read pile up in IGV. For ATAC-seq, we can determine if those piled-up reads are significant and call them "peaks. There are several software available for calling ATAC peaks, I use MACS2, but you could also use MACS3, HMMR-ATAC. The software listed here are the most popular and widely used.
+
+```
+SIZE_in_BP= #size of your genome in base-pairs 
+macs2 callpeak -t FINAL.bam -f BAMPE -g $SIZE_in_BP  -n {}_23 -B -q 0.05 -s 75 --call-summits --outdir MACS2_FINAL
+```
+
+##Final Thoughts 
+
+Defintely check out the ATAC-seq pipeline developed by John M. Gaspar and Aaron Kitzmiller https://github.com/harvardinformatics/ATAC-seq for more tools. 
+
+Next I will publish my analysis pipeline, so be on the look out for that!
+
+Please reach out to me if you have any questions or comments. 
+Thanks for reading and happy research! 
