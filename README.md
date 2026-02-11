@@ -49,6 +49,7 @@ To map to the genome, I used `bowtie2` which is a very widely used genome mappin
 Make sure you load/download the [latest version](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) of `bowtie2` before you get started. 
 
 ```
+#For ATAC-seq
 bowtie2  --very-sensitive  -x genome_index  -1 TRIMMED_1.fq -2 TRIMMED_2.fq -S {}.sam
 ```
 For bowtie, this first parameter I have listed here `--very-sensitive` is important to consider when mapping RNA-seq vs. ATAC-seq data. 
@@ -60,10 +61,24 @@ With ATAC-seq, I've found that using the `--very-sensitive` parameter works to g
 For RNA-seq, it's recommended to have 80-90% mapped reads, and you can increase map percentage using the preset `--local` parameter can help with this. Using the `--local` parameter will allow for non-exact sequences to allign. I find this is best for RNA samples because RNA sequences may be slightly different from the genome due to RNA processing, so using the `--local` parameter will find best mapped sequences that may ignore a few of the bases towards the end of the sequence known as "soft-clipping". For RNA-seq, I used the `--very-sensitve-local` preset. You could use this parameter for ATAC-seq too if you want to increase your map percentage. 
 
 ```
-bowtie2  --very-sensitive-local  -x genome_index  -1 TRIMMED_1.fq -2 TRIMMED_2.fq -S {}.sam
+#For RNA-seq
+bowtie2  --very-sensitive-local  -x genome_index  -1 TRIMMED_1.fq -2 TRIMMED_2.fq -S TRIMMED_MAPPED.sam
 ```
+Alight, after this you should now have your mapped reads! Awesome!
 
 ## Step 3: Convert `.sam` to `.bam`
+
+Up to now, you were working with `.fastq` sequence files, but now we're working with `.sam` files. And we're going to immediately convert those `.sam` files to `.bam` files. We're converting to `.bam` because, although `.sam` files are human readable, we actually want a file that is smaller and easier for the computer to work with, not for us. So, we will convert our `.sam` files to `.bam` files so that the computer can read them faster. 
+
+To covert a `.sam` file to a `.bam` file, we are going to use an extremely useful software called `samtools`. I would say that `samtools` might be one of the most useful and versitle genomic tools, and learning and being familiar with `samtools` will be important for the rest of our pipeline. 
+
+As always, make sure your running the [latest version](https://www.htslib.org/) of `samtools` and lets run a simple line of code 
+
+```
+#Make your sam file a bam file
+samtools view -u TRIMMED_MAPPED.sam | samtools sort -n -o TRIMMED_MAPPED.bam
+```
+Now you have your mapped, trimmed, and sorted bam files! Congrats! You could stop here, but it is best to sort your files a bit further to use them for your downstream analysis. 
 
 ## Step 4: Remove Mitochondrial Reads
 
