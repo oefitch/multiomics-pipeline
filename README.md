@@ -140,15 +140,18 @@ We can use the `bamCoverage` tool to generate `.bw` files. Download the [latest 
 SIZE_in_BP= #size of your genome in base-pairs 
 bamCoverage -b FINAL.bam -of bigwig --normalizeUsing BPM --ignoreForNormalization MT --effectiveGenomeSize $SIZE_in_BP -o FINAL.bw
 ```
+Here, I'm normalizing using BPM, but there are different methods for normalizing ATAC-seq data for visualization. `bamCoverage` offers RPKM, CPM, BPM, RPGC, or none. It may be best to use the tool you use for RNA-seq analysis, or the same tool you use for downsteam ATAC analysis. My advice is to look into the best normalization practices for the type of biological system you're assessing. Is it a disease trial? Is it across development? 
+> ** NOTE: ** I will post my guide for normalization for developmental data soon! Be on the lookout! 
 
-## Step 9: Call Peaks with `MACS2` 
+## Step 9: Call Peaks with `macs2` 
 
-In the previous step, we made `.bw` files to visualize our ATAC-seq read pile up in IGV. For ATAC-seq, we can determine if those piled-up reads are significant and call them "peaks. There are several software available for calling ATAC peaks, I use MACS2, but you could also use MACS3, HMMR-ATAC. The software listed here are the most popular and widely used.
+In the previous step, we made `.bw` files to visualize our ATAC-seq read pile up in IGV. For ATAC-seq, we can determine if those piled-up reads are significant and call them "peaks". There are several software available for calling ATAC peaks, I use MACS2, but you could also use MACS3, HMMR-ATAC. The software listed here are the most popular and widely used.
 
 ```
 SIZE_in_BP= #size of your genome in base-pairs 
 macs2 callpeak -t FINAL.bam -f BAMPE -g $SIZE_in_BP  -n {}_23 -B -q 0.05 -s 75 --call-summits --outdir MACS2_FINAL
 ```
+> **NOTE:** The `-f` parameter is set to `BAMPE` to recognize bam files with paired-end sequencing. 
 
 ##Final Thoughts 
 
