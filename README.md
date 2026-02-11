@@ -1,7 +1,7 @@
 # multiomics-pipeline
 Pipeline for processing RNA-seq and ATAC-seq data from fastq to bigwig
 
-This file in IN PROGRESS
+This file in **IN PROGRESS**
 
 This pipeline is based on the ATAC-seq pipeline developed by John M. Gaspar and Aaron Kitzmiller https://github.com/harvardinformatics/ATAC-seq
 
@@ -17,6 +17,19 @@ Fitch_full_ATAC_pipeline
 ```
 
 ## Step 1: Trim Reads
+
+With next-generation sequencing (NGS), your samples contain fragments of genetic material (either DNA or RNA) and in order to sequence the fragments, you prepare a "lirary" by adding adapter sequences. These adapters have several puroses: 
+
+1. Bind with primers - important for amplifying RNA/DNA fragments 
+2. "Tag" your samples - unique adaparts are important for differenciating between sequence samples
+3. Adapters contain regions that can bind to the sequence flow-cell - important for the sequencing process
+
+Although adapters are important for the sequencing process, once you have your sequencing data back, you want to remove these adapters because they aren't biologically relevant. 
+In some cases, you need to know your unique adapter sequences in order to trim them, but there are methods that can identify adapters without knowing the exact sequence. In my case, I knew the adapter sequences, so I trimmed those sequences specifically. 
+
+For read trimming, I used to use `Trimmomatic` but I found that `bbduk` runs a lot faster for my purposes. 
+
+To run bbduk
 
 ## Step 2: Map to Genome
 
