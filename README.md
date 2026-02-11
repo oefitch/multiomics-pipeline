@@ -18,7 +18,7 @@ Fitch_full_ATAC_pipeline
 
 ## Step 1: Trim Reads
 
-With next-generation sequencing (NGS), your samples contain fragments of genetic material (either DNA or RNA) and in order to sequence the fragments, you prepare a "lirary" by adding adapter sequences. These adapters have several puroses: 
+With next-generation sequencing (NGS), your samples contain fragments of genetic material (either DNA or RNA) and in order to sequence the fragments, you prepare a "library" by adding adapter sequences. These adapters have several purposes: 
 
 1. Bind with primers - important for amplifying RNA/DNA fragments 
 2. "Tag" your samples - unique adaparts are important for differenciating between sequence samples
@@ -30,7 +30,7 @@ In some cases, you need to know your unique adapter sequences in order to trim t
 For read trimming, I used to use `Trimmomatic` but I found that `bbduk` runs a lot faster for my purposes. 
 
 To run `bbduk`, you will need to load/download the [latest version](https://archive.jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/installation-guide/)
-If you know your adapter sequences, you can use the `ref` command to call the list of adapters. 
+If you know your adapter sequences, you can use the `ref` command to call the list of adapters. The `ktrim` command allows you to set the trimming, from the left, right, or both directions, and `minlength` allows you to set the minimum length that sequences can be trimmed. I set this parameter to 25 so anything less than 25bp would be thrown out. Consider what works best for your system. 
 
 ```
 #For paired end reads
