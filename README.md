@@ -29,7 +29,14 @@ In some cases, you need to know your unique adapter sequences in order to trim t
 
 For read trimming, I used to use `Trimmomatic` but I found that `bbduk` runs a lot faster for my purposes. 
 
-To run bbduk
+To run `bbduk`, you will need to load/download the [latest version](https://archive.jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/installation-guide/)
+If you know your adapter sequences, you can use the `ref` command to call the list of adapters. 
+
+```
+#For paired end reads
+bbduk.sh in=READ_1 in2=READ_2 out=TRIMMED_1 out2=TRIMMED_2 outs=SINGLE_END ref=adapter_contamination_sequences.fasta ktrim=r minlength=25
+```
+After this importnat first step, you should have your trimmed reads! Congrats! Next let's map to the genome.
 
 ## Step 2: Map to Genome
 
