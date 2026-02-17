@@ -156,7 +156,7 @@ macs2 callpeak -t FINAL.bam -f BAMPE -g $SIZE_in_BP  -n {}_23 -B -q 0.05 -s 75 -
 ```
 > **NOTE:** The `-f` parameter is set to `BAMPE` to recognize bam files with paired-end sequencing, be sure to change this for your sequencing type. 
 
-##Final Thoughts 
+## Final Thoughts 
 
 Defintely check out the ATAC-seq pipeline developed by John M. Gaspar and Aaron Kitzmiller https://github.com/harvardinformatics/ATAC-seq for more tools. 
 
