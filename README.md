@@ -8,7 +8,7 @@ This pipeline is based on the ATAC-seq pipeline developed by John M. Gaspar and 
 This pipeline is used to process raw reads in `.fastq` format to final `.bam` files that can be used for future analysis (e.g. read counting, etc.) as well as `.bigwig` files for visualization in IGV, and peak calling with MACS2 for `.narrowPeak` files. 
 
 ### Scripts 
-So far I've written up the entire pipeline in one script, but I recommend you run this one step at a time for easier trouble shooting, I will update this soon. 
+So far I've written up the entire pipeline in one script, but I recommend you run this one step at a time for easier trouble shooting
 
 ```
 Fitch_full_ATAC_pipeline
@@ -16,7 +16,7 @@ Fitch_full_ATAC_pipeline
 
 ## Step 1: Trim Reads
 
-With next-generation sequencing (NGS), your samples contain fragments of genetic material (either DNA or RNA) and in order to sequence the fragments, you prepare a "library" by adding adapter sequences. These adapters have several purposes: 
+With next-generation sequencing (NGS), your samples contain fragments of genetic material (either DNA or RNA) and in order to sequence these fragments, you prepare a "library" by adding adapter sequences. These adapters have several purposes: 
 
 1. Bind with primers - important for amplifying RNA/DNA fragments 
 2. "Tag" your samples - unique adaparts are important for differenciating between sequence samples
@@ -56,7 +56,7 @@ There are 4 pre-set parameters in bowtie: `--very-sensitive`, `--sensitive`, `--
 
 With ATAC-seq, I've found that using the `--very-sensitive` parameter works to get around 50-70% mapped reads, which is acceptable for working with non-model organisms, but if you're working with common models, you may want a higher map percentage up to 80-90%. 
 
-For RNA-seq, it's recommended to have 80-90% mapped reads, and you can increase map percentage using the preset `--local` parameter can help with this. Using the `--local` parameter will allow for non-exact sequences to allign. I find this is best for RNA samples because RNA sequences may be slightly different from the genome due to RNA processing, so using the `--local` parameter will find best mapped sequences that may ignore a few of the bases towards the end of the sequence known as "soft-clipping". For RNA-seq, I used the `--very-sensitve-local` preset. You could use this parameter for ATAC-seq too if you want to increase your map percentage. 
+For RNA-seq, it's recommended to have 80-90% mapped reads, and you can increase map percentage using the preset `--local` parameter to help with this. Using the `--local` parameter will allow for non-exact sequences to allign. I find this is best for RNA samples because RNA sequences may be slightly different from the genome due to RNA processing, so using the `--local` parameter will find best mapped sequences that may ignore a few of the bases towards the end of the sequence known as "soft-clipping". For RNA-seq, I used the `--very-sensitve-local` preset. You could use this parameter for ATAC-seq too if you want to increase your map percentage. 
 
 ```
 #For RNA-seq
@@ -70,19 +70,20 @@ Up to now, you were working with `.fastq` sequence files, but now we're working 
 
 To covert a `.sam` file to a `.bam` file, we are going to use an extremely useful software called `samtools`. I would say that `samtools` might be one of the most useful and versitle genomic tools, and learning and being familiar with `samtools` will be important for the rest of our pipeline. 
 
-As always, make sure your running the [latest version](https://www.htslib.org/) of `samtools` and lets run a simple line of code 
+As always, make sure you're running the [latest version](https://www.htslib.org/) of `samtools` and lets run a simple line of code 
 
 ```
 #Make your sam file a bam file
 samtools view -u TRIMMED_MAPPED.sam | samtools sort -n -o TRIMMED_MAPPED.bam
 ```
-Now you have your mapped, trimmed, and sorted bam files! Congrats! You could stop here, but it is best to sort your files a bit further to use them for your downstream analysis. 
+
+Now you have your mapped, trimmed, and sorted bam files! Congrats! You could stop here, but it is best to process your files a bit further to use them for your downstream analysis. 
 
 ## Step 4: Remove Mitochondrial Reads
 
 For ATAC-seq, it's important to remove mitochondrial reads during processing because, much like how rRNA reads can overwhelm your RNA-seq analysis, mitochondrial reads can make up a signifcant number of your ATAC reads, so it is best to remove them.  
 
-For RNA-seq, you may not want to remove mitochondrial reads because you're interested in mitochondrial genes, you can also remove mitochondrail genes or rRNA later in your RNA analysis process. There is conflicting opinions on whether to remove mitochondrial reads from your `.bam` files in RNA-seq, but I think that treating your RNA and ATAC reads with the same processing is important for multiomics work, so I choose to remove mitochondrial reads at this step for RNA-seq, but this is up to your discretion. 
+For RNA-seq, you may not want to remove mitochondrial reads especially if you're interested in mitochondrial genes, you can also remove mitochondrail genes or rRNA later in your RNA analysis process. There is conflicting opinions on whether to remove mitochondrial reads from your `.bam` files in RNA-seq, but I think that treating your RNA and ATAC reads with the same processing is important for multiomics work, so I choose to remove mitochondrial reads at this step for RNA-seq, but this is up to your discretion. 
 
 You can use the [python script](https://github.com/harvardinformatics/ATAC-seq/blob/master/atacseq/removeChrom.py) convieniently posted to Github by John M. Gaspar and Aaron Kitzmiller to remove mitochondrial reads. 
 
@@ -108,10 +109,10 @@ Great! Now we are ready to move on to the next processing step: removing non-uni
 
 ## Step 6: Remove non-uniquely mapped reads
 
-This step is important after `bowtie2` processing, using another mapping software you may not have this issue. But `bowtie` may map a read to mutliple places in the genome and give it a low quality score. You can remove those with a low quality score using `samtools`. 
+This step is important after `bowtie2` processing, using another mapping software you may not have this issue. But `bowtie` may map a read to mutliple places in the genome and give it a low quality score. You can remove the reads with a low quality score using `samtools`. 
 
 ```
-#Remove loq-qulaity mapped reads and sort again
+#Remove low-qulaity mapped reads and sort again
 # -n sorts reads alpha-numerically
 samtools view -b  -q 10  TRIMMED_MAPPED_MITOUT_DUPOUT_UNIQ.bam | samtools sort -n -o  FINAL.bam
 ```
@@ -132,7 +133,7 @@ Great, now you have your index! These next two steps can be performed in unison,
 
 ## Step 8: Convert `.bam` to `.bigwig`
 
-Now that we have our cleaned `.bam` files, we want to move on to visualizing our samples in IGV. The best way to visualize these samples is to make "bigwig" `.bw` files. That are mean for visualization so you don't have to haul around a giant `.bam` file to your genome viewers. 
+Now that we have our cleaned `.bam` files, we want to move on to visualizing our samples in IGV. The best way to visualize these samples is to make "bigwig" `.bw` files. This file type is meant for visualization so you don't have to haul around a giant `.bam` file to your genome viewers. 
 
 We can use the `bamCoverage` tool to generate `.bw` files. Download the [latest version](https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html) of `bamCoverage` from `deepTools`
 
@@ -140,18 +141,20 @@ We can use the `bamCoverage` tool to generate `.bw` files. Download the [latest 
 SIZE_in_BP= #size of your genome in base-pairs 
 bamCoverage -b FINAL.bam -of bigwig --normalizeUsing BPM --ignoreForNormalization MT --effectiveGenomeSize $SIZE_in_BP -o FINAL.bw
 ```
+
 Here, I'm normalizing using BPM, but there are different methods for normalizing ATAC-seq data for visualization. `bamCoverage` offers RPKM, CPM, BPM, RPGC, or none. It may be best to use the tool you use for RNA-seq analysis, or the same tool you use for downsteam ATAC analysis. My advice is to look into the best normalization practices for the type of biological system you're assessing. Is it a disease trial? Is it across development? 
-> ** NOTE: ** I will post my guide for normalization for developmental data soon! Be on the lookout! 
+
+> ** NOTE: ** I will post my guide for normalization of developmental data soon! Be on the lookout! 
 
 ## Step 9: Call Peaks with `macs2` 
 
-In the previous step, we made `.bw` files to visualize our ATAC-seq read pile up in IGV. For ATAC-seq, we can determine if those piled-up reads are significant and call them "peaks". There are several software available for calling ATAC peaks, I use MACS2, but you could also use MACS3, HMMR-ATAC. The software listed here are the most popular and widely used.
+In the previous step, we made `.bw` files to visualize our ATAC-seq read pile up in IGV. For ATAC-seq, we can determine if those piled-up reads are significant and call them "peaks". There are several software available for calling ATAC peaks, I use MACS2, but you could also use [MACS3](https://macs3-project.github.io/MACS/), or [HMMRATAC](https://github.com/LiuLabUB/HMMRATAC). The software listed here are the most popular and widely used, but there are  other methods for peak calling if you want to explore.
 
 ```
 SIZE_in_BP= #size of your genome in base-pairs 
 macs2 callpeak -t FINAL.bam -f BAMPE -g $SIZE_in_BP  -n {}_23 -B -q 0.05 -s 75 --call-summits --outdir MACS2_FINAL
 ```
-> **NOTE:** The `-f` parameter is set to `BAMPE` to recognize bam files with paired-end sequencing. 
+> **NOTE:** The `-f` parameter is set to `BAMPE` to recognize bam files with paired-end sequencing, be sure to change this for your sequencing type. 
 
 ##Final Thoughts 
 
@@ -161,3 +164,5 @@ Next I will publish my analysis pipeline, so be on the look out for that!
 
 Please reach out to me if you have any questions or comments. 
 Thanks for reading and happy research! 
+
+_No AI was used in the development or documentation of this pipeline_
